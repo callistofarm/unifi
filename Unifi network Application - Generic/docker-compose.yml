@@ -9,7 +9,7 @@ services:
     environment:
       - PGID=1000
       - PUID=1000
-      - TZ=Etc/UTC
+      - TZ=Australia/Brisbane
     ports:
       - target: 27017
         published: "27017"
@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
     volumes:
       - type: bind
-        source: /CHOOSE-A-PATH/unifi-db
+        source: /home/jeremy/unifi/data/db
         target: /data/db
     networks:
      - unifi-bridge
@@ -31,12 +31,12 @@ services:
     environment:
       - MONGO_DBNAME=unifi-db
       - MONGO_HOST=unifi-db
-      - MONGO_PASS=pass
+      - MONGO_PASS=Serein170
       - MONGO_PORT=27017
-      - MONGO_USER=unifi
+      - MONGO_USER=jeremy
       - PGID=1000
       - PUID=1000
-      - TZ=Etc/UTC
+      - TZ=Australia/Brisbane
     image: lscr.io/linuxserver/unifi-network-application:latest
     ports:
       - target: 8443
@@ -69,7 +69,7 @@ services:
     restart: unless-stopped
     volumes:
       - type: bind
-        source: /CHOOSE-A-PATH/unifi-network-application
+        source: /home/jeremy/unifi/config
         target: /config
     networks:
      - unifi-bridge
