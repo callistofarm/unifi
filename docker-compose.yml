@@ -1,0 +1,95 @@
+name: unifi-network-application
+services:
+  unifi-db:
+    container_name: unifi-db
+    image: mongo:7.0.7
+    configs:
+      - source: init-mongo.js
+        target: /docker-entrypoint-initdb.d/init-mongo.js
+    environment:
+      - PGID=1000
+      - PUID=1000
+      - TZ=Australia/Brisbane
+    ports:
+      - target: 27017
+        published: "27017"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /home/jeremy/unifi/data/db
+        target: /data/db
+    networks:
+     - unifi-bridge
+    privileged: false
+  unifi-network-application:
+    container_name: unifi-network-application
+    depends_on:
+      unifi-db:
+        condition: service_started
+        required: true
+    environment:
+      - MONGO_DBNAME=unifi-db
+      - MONGO_HOST=unifi-db
+      - MONGO_PASS=Serein170
+      - MONGO_PORT=27017
+      - MONGO_USER=dbuser
+      - PGID=1000
+      - PUID=1000
+      - TZ=Australia/Brisbane
+    image: lscr.io/linuxserver/unifi-network-application:8.1.113-ls36
+    ports:
+      - target: 8443
+        published: "8443"
+        protocol: tcp
+      - target: 3478
+        published: "3478"
+        protocol: udp
+      - target: 10001
+        published: "10001"
+        protocol: udp
+      - target: 8080
+        published: "8080"
+        protocol: tcp
+      - target: 1900 #optional
+        published: "1900"
+        protocol: udp
+      - target: 8843 #optional
+        published: "8843"
+        protocol: tcp
+      - target: 8880 #optional
+        published: "8880"
+        protocol: tcp
+      - target: 6789 #optional
+        published: "6789"
+        protocol: tcp
+      - target: 5514 #optional
+        published: "5514"
+        protocol: udp
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /home/jeremy/unifi/config
+        target: /config
+    networks:
+      unifi-bridge:
+      vlan_1:
+        ipv4_address: 192.168.1.123 	
+    privileged: false
+
+networks:
+  unifi-bridge:
+    driver: bridge
+  vlan_1:
+    driver: macvlan
+    driver_opts:
+      parent: enp86s0
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
+          gateway: 192.168.1.1
+configs:
+  init-mongo.js:
+    content: |
+      db.getSiblingDB("unifi-db").createUser({user: "dbuser", pwd: "Serein170", roles: [{role: "dbOwner", db: "unifi-db"}]}); 
+      db.getSiblingDB("unifi-db_stat").createUser({user: "dbuser", pwd: "Serein170docker ne", roles: [{role: "dbOwner", db: "unifi-db_stat"}]});

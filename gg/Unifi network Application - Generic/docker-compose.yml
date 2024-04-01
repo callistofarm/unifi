@@ -2,7 +2,7 @@ name: unifi-network-application
 services:
   unifi-db:
     container_name: unifi-db
-    image: docker.io/mongo:3.6
+    image: mongo:7.0.7
     configs:
       - source: init-mongo.js
         target: /docker-entrypoint-initdb.d/init-mongo.js
@@ -31,13 +31,13 @@ services:
     environment:
       - MONGO_DBNAME=unifi-db
       - MONGO_HOST=unifi-db
-      - MONGO_PASS=Serein170
+      - MONGO_PASS=pass
       - MONGO_PORT=27017
-      - MONGO_USER=jeremy
+      - MONGO_USER=unifi
       - PGID=1000
       - PUID=1000
       - TZ=Australia/Brisbane
-    image: lscr.io/linuxserver/unifi-network-application:latest
+    image: lscr.io/linuxserver/unifi-network-application:8.1.113-ls36
     ports:
       - target: 8443
         published: "8443"
